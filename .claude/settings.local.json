@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git reset:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(ssh-keyscan:*)",
+      "Bash(~/.ssh/known_hosts)",
+      "Bash(gh repo delete:*)",
+      "Bash(git init:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

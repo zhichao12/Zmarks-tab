@@ -1,0 +1,14 @@
+{
+  "name": "Zmarks-tab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "pnpm build && serve dist",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
