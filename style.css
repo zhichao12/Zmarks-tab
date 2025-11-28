@@ -1173,7 +1173,7 @@ body #bookmarkButton.bookmark-button.rotate {
 	width: min(420px, 90vw);
 	max-height: 70vh;
 	display: grid;
-	grid-template-rows: auto auto 1fr;
+	grid-template-rows: auto auto auto 1fr;
 	gap: 12px;
 	padding: 16px;
 	border-radius: 20px;
@@ -1218,6 +1218,54 @@ body #bookmarkButton.bookmark-button.rotate {
 	background: var(--accentDark-blue);
 	color: white;
 	cursor: pointer;
+}
+
+.cloud-config {
+	display: grid;
+	gap: 8px;
+	padding: 12px;
+	border-radius: 14px;
+	border: 1px solid var(--accentLight-blue);
+	background: color-mix(in srgb, var(--accentLightTint-blue) 60%, transparent);
+}
+
+.cloud-config-row {
+	display: grid;
+	gap: 4px;
+}
+
+.cloud-config-row label {
+	font-size: 12px;
+	opacity: 0.8;
+}
+
+.cloud-config-row input {
+	padding: 8px 10px;
+	border-radius: 10px;
+	border: 1px solid var(--accentLight-blue);
+	background: color-mix(in srgb, var(--bg-color-blue) 80%, transparent);
+	color: inherit;
+}
+
+.cloud-config-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.cloud-config-actions button {
+	flex: 1;
+	padding: 8px 10px;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+	background: var(--accentDark-blue);
+	color: #fff;
+}
+
+.cloud-config-actions .ghost {
+	background: transparent;
+	border: 1px solid var(--accentLight-blue);
+	color: inherit;
 }
 
 .cloud-bookmarks-status {

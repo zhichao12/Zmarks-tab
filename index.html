@@ -128,6 +128,21 @@
                 <button id="cloudBookmarkClose">✕</button>
             </div>
         </div>
+        <div class="cloud-config">
+            <div class="cloud-config-row">
+                <label for="cloudApiBaseInput">API 基址</label>
+                <input type="url" id="cloudApiBaseInput" placeholder="https://your-tmarks-domain" autocomplete="off" />
+            </div>
+            <div class="cloud-config-row">
+                <label for="cloudApiKeyInput">X-API-Key（可选）</label>
+                <input type="text" id="cloudApiKeyInput" placeholder="未启用 API Key 可留空" autocomplete="off" />
+            </div>
+            <div class="cloud-config-actions">
+                <button id="cloudApiSave">保存</button>
+                <button id="cloudApiClear" class="ghost">清除</button>
+            </div>
+            <div id="cloudConfigStatus" class="cloud-bookmarks-status"></div>
+        </div>
         <div id="cloudBookmarkStatus" class="cloud-bookmarks-status"></div>
         <div id="cloudBookmarkList" class="cloud-bookmarks-list"></div>
     </div>

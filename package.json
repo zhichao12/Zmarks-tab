@@ -5,10 +5,14 @@
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "dev": "pnpm build && serve dist",
+    "dev": "pnpm build && wrangler pages dev dist",
+    "dev:static": "pnpm build && serve dist",
+    "deploy:pages": "pnpm build && wrangler pages deploy dist --project-name zmarks",
+    "deploy:pages:preview": "pnpm build && wrangler pages deploy dist --project-name zmarks --branch preview",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    "serve": "^14.2.1"
+    "serve": "^14.2.1",
+    "wrangler": "^4.42.1"
   }
 }

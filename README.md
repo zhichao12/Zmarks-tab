@@ -51,6 +51,62 @@ pnpm build
 pnpm dev
 ```
 
+## ☁️ 云端部署（GitHub + Cloudflare Pages + D1/KV）
+
+> 需求：希望像 marks 项目一样，通过 GitHub 连接 Cloudflare，一键拉起 Pages + D1 + KV。下面是 Zmarks 的完整步骤（后端目录为 `tmarks/tmarks`，云书签 API 用于本扩展的 Cloud Bookmarks 面板）。
+
+1. **Fork 仓库**
+   - 在 GitHub Fork 本仓库，后续 Cloudflare 直接连接你的 Fork。
+
+2. **Cloudflare Pages 连接 GitHub**
+   - Cloudflare Dashboard → Workers & Pages → 创建项目 → 连接到 GitHub 选择 Fork。
+   - 构建设置：
+     - 根目录：`tmarks/tmarks`
+     - 构建命令：`pnpm install && pnpm build:deploy`
+     - 构建输出目录：`.deploy`
+   - 保存后先让它跑一遍（首次可能因资源未配置而失败，继续下一步）。
+
+3. **创建 D1 数据库**
+   - Workers & Pages → D1 SQL Database → Create database
+   - 名称建议：`tmarks-prod-db`
+
+4. **创建 KV 命名空间（推荐）**
+   - Workers & Pages → KV → Create a namespace
+   - 推荐两个：
+     - `RATE_LIMIT_KV`（API 访问限流，可防滥用）
+     - `PUBLIC_SHARE_KV`（公开页缓存，加速分享页）
+
+5. **绑定 D1/KV 到 Pages Functions**
+   - 进入你的 Pages 项目 → 设置 → 函数 → 绑定：
+     - D1：变量名 `DB`，选择第 3 步的 `tmarks-prod-db`
+     - KV（可选）：变量名 `RATE_LIMIT_KV` → 选择对应命名空间
+     - KV（可选）：变量名 `PUBLIC_SHARE_KV` → 选择对应命名空间
+
+6. **配置环境变量**
+   - 路径：项目设置 → 环境变量 → 生产环境
+   - 业务变量（可直接写 Dashboard）：
+     - `ALLOW_REGISTRATION`：是否开放注册，推荐 `"true"`（关闭则删掉该变量或设为非 "true"）
+     - `ENVIRONMENT`：`production`
+     - `JWT_ACCESS_TOKEN_EXPIRES_IN`：如 `"365d"`
+     - `JWT_REFRESH_TOKEN_EXPIRES_IN`：如 `"365d"`
+   - 敏感变量（只在 Dashboard 填写真实值，不要提交到代码）：
+     - `JWT_SECRET`：至少 48 位随机字符串
+     - `ENCRYPTION_KEY`：至少 48 位随机字符串
+
+7. **初始化数据库**
+   - Workers & Pages → D1 SQL Database → 打开 `tmarks-prod-db` → Console
+   - 打开仓库文件 `tmarks/tmarks/migrations/d1_console_pure.sql`，复制全部 SQL，粘贴执行。
+
+8. **重新部署**
+   - 回到 Pages 项目 → 部署 → 重新触发部署（或点击“重试”）。
+   - 部署完成后得到你的站点域名（如 `https://xxxx.pages.dev`），该地址即后端 API Base。
+
+9. **在扩展中配置 Cloud Bookmarks**
+   - 打开新标签页界面，点击左上角云朵图标 → 在弹出的配置区填写：
+     - API 基址：上一步的 Pages 域名（如 `https://xxxx.pages.dev`）
+     - X-API-Key：如后端启用了 API Key，则填写；未启用可留空
+   - 点击“保存”后再点“↻”即可加载云书签。
+
 ### 项目结构
 
 ```

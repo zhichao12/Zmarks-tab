@@ -10,9 +10,25 @@ const cloudBookmarkStatus = document.getElementById('cloudBookmarkStatus')
 const cloudBookmarkSearch = document.getElementById('cloudBookmarkSearch')
 const cloudBookmarkReload = document.getElementById('cloudBookmarkReload')
 const cloudBookmarkClose = document.getElementById('cloudBookmarkClose')
+const cloudApiBaseInput = document.getElementById('cloudApiBaseInput')
+const cloudApiKeyInput = document.getElementById('cloudApiKeyInput')
+const cloudApiSave = document.getElementById('cloudApiSave')
+const cloudApiClear = document.getElementById('cloudApiClear')
+const cloudConfigStatus = document.getElementById('cloudConfigStatus')
+
+function normalizeApiBase(raw) {
+  if (!raw) return ''
+  try {
+    const url = new URL(raw)
+    // 去掉末尾的 /，保持统一
+    return `${url.origin}${url.pathname.replace(/\/$/, '')}`
+  } catch {
+    return ''
+  }
+}
 
 function getApiBase() {
-  return window.ZMARKS_API_BASE || localStorage.getItem('zmarksApiBase') || ''
+  return normalizeApiBase(window.ZMARKS_API_BASE || localStorage.getItem('zmarksApiBase') || '')
 }
 function getApiKey() {
   return window.ZMARKS_API_KEY || localStorage.getItem('zmarksApiKey') || ''
@@ -70,6 +86,7 @@ function escapeHtml(str) {
 
 async function loadCloudBookmarks() {
   cloudBookmarkStatus.textContent = '加载中...'
+  if (cloudConfigStatus) cloudConfigStatus.textContent = ''
   try {
     const keyword = cloudBookmarkSearch.value.trim()
     const list = await fetchCloudBookmarks(keyword)
@@ -79,6 +96,12 @@ async function loadCloudBookmarks() {
     console.error(err)
     cloudBookmarkStatus.textContent = `加载失败：${err.message}`
     cloudBookmarkList.innerHTML = ''
+    if (cloudConfigStatus) {
+      const msg = err.message.includes('未配置 API Base')
+        ? '请先在上方填写 API 基址并保存'
+        : err.message
+      setCloudConfigStatus(msg, true)
+    }
   }
 }
 
@@ -107,6 +130,66 @@ if (cloudBookmarkSearch) {
     }
   })
 }
+
+function setCloudConfigStatus(text, isError = false) {
+  if (!cloudConfigStatus) return
+  cloudConfigStatus.textContent = text
+  cloudConfigStatus.style.color = isError ? '#ff6b6b' : ''
+}
+
+// 云配置输入区初始化与保存
+function initCloudConfigForm() {
+  if (!cloudApiBaseInput || !cloudApiSave) return
+
+  cloudApiBaseInput.value = getApiBase()
+  if (cloudApiKeyInput) cloudApiKeyInput.value = getApiKey()
+  if (!cloudApiBaseInput.value && cloudBookmarkStatus) {
+    cloudBookmarkStatus.textContent = '未配置 API Base'
+  }
+
+  const save = () => {
+    const base = normalizeApiBase(cloudApiBaseInput.value.trim())
+    const key = cloudApiKeyInput ? cloudApiKeyInput.value.trim() : ''
+
+    if (!base) {
+      setCloudConfigStatus('请填写有效的 API 基址（如 https://example.com）', true)
+      return
+    }
+    localStorage.setItem('zmarksApiBase', base)
+    if (key) {
+      localStorage.setItem('zmarksApiKey', key)
+    } else {
+      localStorage.removeItem('zmarksApiKey')
+    }
+    setCloudConfigStatus('已保存，可点击 ↻ 重新加载云书签')
+    if (cloudBookmarkPanel && cloudBookmarkPanel.style.display !== 'none') {
+      loadCloudBookmarks()
+    }
+  }
+
+  cloudApiSave.addEventListener('click', save)
+  cloudApiBaseInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') save()
+  })
+  if (cloudApiKeyInput) {
+    cloudApiKeyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') save()
+    })
+  }
+  if (cloudApiClear) {
+    cloudApiClear.addEventListener('click', () => {
+      localStorage.removeItem('zmarksApiBase')
+      localStorage.removeItem('zmarksApiKey')
+      cloudApiBaseInput.value = ''
+      if (cloudApiKeyInput) cloudApiKeyInput.value = ''
+      setCloudConfigStatus('已清除配置，云功能已关闭')
+      cloudBookmarkStatus.textContent = '未配置 API Base'
+      cloudBookmarkList.innerHTML = ''
+    })
+  }
+}
+
+initCloudConfigForm()
 
 // 点击外部关闭
 document.addEventListener('click', (e) => {
